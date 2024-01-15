@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/imageViewAlbum"
+        android:layout_width="256dp"
+        android:layout_height="256dp"
+        android:scaleType="centerCrop"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_marginStart="8dp">
+
+        <TextView
+            android:id="@+id/textViewInfoCancion"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:textColor="@color/white"
+            android:background="@drawable/button_selector"
+            android:gravity="center|center_vertical"
+            android:text="Información de la Cancion"/>
+
+        <ImageButton
+            android:id="@+id/imageButtonReproducirCancion"
+            android:layout_width="match_parent"
+            android:layout_height="76dp"
+            android:background="@drawable/button_selector"
+            app:srcCompat="@drawable/icono_reproducir"/>
+    </LinearLayout>
+
+</LinearLayout>
