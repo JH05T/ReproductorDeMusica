@@ -1,35 +1,43 @@
 package es.tiernoparla.reproductordemsica
 
 import android.content.Context
-import android.media.MediaPlayer
 import android.net.Uri
+import android.os.Handler
+import android.widget.SeekBar
+import android.widget.VideoView
 
-class ReproductorDeCanciones {
+class ReproductorDeCanciones(private val videoView: VideoView, private val seekBar: SeekBar) {
 
-    private var mediaPlayer: MediaPlayer? = null
+    private var uriActual: Uri? = null
+    private val handler = Handler()
 
-    fun reproducirCancion(cancion: Cancion, context: Context) {
+    fun reproducirCancion(cancion: Cancion, canciones: List<Cancion>, context: Context) {
 
-        if (mediaPlayer == null) {
+        val uri = Uri.parse("android.resource://${context.packageName}/${cancion.cancion}")
 
-            val uri = Uri.parse("android.resource://${context.packageName}/${cancion.cancion}")
+        if (uriActual != uri) {
 
-            mediaPlayer = MediaPlayer.create(context, uri)
+            detenerCancion(canciones)
 
-            mediaPlayer?.setOnCompletionListener {
+            videoView.setVideoURI(uri)
 
-                cancion.reproduciendose = false
-
-                mediaPlayer?.release()
-
-                mediaPlayer = null
-
-            }
-
+            uriActual = uri
 
         }
 
-        mediaPlayer?.start()
+        videoView.setOnPreparedListener {
+
+            configurarSeekBar(cancion)
+
+        }
+
+        videoView.setOnCompletionListener {
+
+            cancion.reproduciendose = false
+
+        }
+
+        videoView.start()
 
         cancion.reproduciendose = true
 
@@ -37,9 +45,9 @@ class ReproductorDeCanciones {
 
     fun pausarCancion(cancion: Cancion) {
 
-        if (mediaPlayer?.isPlaying == true) {
+        if (videoView.isPlaying) {
 
-            mediaPlayer?.pause()
+            videoView.pause()
 
             cancion.reproduciendose = false
 
@@ -47,17 +55,63 @@ class ReproductorDeCanciones {
 
     }
 
-    fun detenerCancion(canciones: List<Cancion>){
+    fun detenerCancion(canciones: List<Cancion>) {
 
-        for (cancion in canciones){
+        for (cancion in canciones) {
 
             cancion.reproduciendose = false
 
         }
 
-        mediaPlayer?.stop()
-        mediaPlayer?.release()
-        mediaPlayer = null
+        videoView.pause()
+
+        videoView.seekTo(0)
+
+    }
+
+    fun configurarSeekBar(cancion: Cancion) {
+
+        seekBar.max = videoView.duration
+
+        val runnable = object : Runnable {
+
+            override fun run() {
+
+                if (videoView != null) {
+
+                    seekBar.progress = videoView.currentPosition
+
+                    handler.postDelayed(this, 10)
+
+                }
+
+            }
+
+        }
+
+        handler.postDelayed(runnable, 10)
+
+        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+
+                if (fromUser) {
+
+                    videoView.seekTo(progress)
+
+                }
+
+            }
+
+            override fun onStartTrackingTouch(p0: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(p0: SeekBar?) {
+
+            }
+
+        })
 
     }
 

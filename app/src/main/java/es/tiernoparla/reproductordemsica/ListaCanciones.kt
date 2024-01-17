@@ -21,12 +21,13 @@ class ListaCanciones : AppCompatActivity() {
     private lateinit var container: ConstraintLayout
     private lateinit var videoView: VideoView
     private lateinit var imageButtonCerrar: AppCompatImageButton
-    private lateinit var SeekBar: SeekBar
+    private lateinit var seekBar: SeekBar
     private lateinit var imageButtonCancionAnterior: AppCompatImageButton
     private lateinit var imageButtonPausaReproducir: AppCompatImageButton
     private lateinit var imageButtonCancionSiguiente: AppCompatImageButton
 
-    private var reproductorDeCanciones: ReproductorDeCanciones = ReproductorDeCanciones()
+    private lateinit var reproductorDeCanciones: ReproductorDeCanciones
+    var cancionActual = CancionActual(0)
 
     val canciones = arrayListOf(
         Cancion("Payphone", arrayListOf("Maroon 5", "Wiz Khalifa"), "@drawable/album_overexposed", R.raw.payphone___maroon5__wiz_khalifa, false),
@@ -40,57 +41,55 @@ class ListaCanciones : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.lista_canciones)
 
-        var cancionActual = 0
-
         inicializarComponentes()
 
         imageButtonAbrir.setOnTouchListener { _, event ->
+
             when (event.action) {
-                MotionEvent.ACTION_MOVE -> {
-                    container.visibility = View.VISIBLE
-                    imageButtonCerrar.visibility = View.VISIBLE
-                    imageButtonAbrir.visibility = View.GONE
+
+                MotionEvent.ACTION_MOVE, MotionEvent.ACTION_UP -> {
+
+                    abrirVideo()
+
                 }
-                MotionEvent.ACTION_UP -> {
-                    container.visibility = View.VISIBLE
-                    imageButtonCerrar.visibility = View.VISIBLE
-                    imageButtonAbrir.visibility = View.GONE
-                }
+
             }
+
             true
+
         }
 
         imageButtonCerrar.setOnTouchListener { _, event ->
+
             when (event.action) {
-                MotionEvent.ACTION_MOVE -> {
-                    container.visibility = View.GONE
-                    imageButtonCerrar.visibility = View.GONE
-                    imageButtonAbrir.visibility = View.VISIBLE
+
+                MotionEvent.ACTION_MOVE, MotionEvent.ACTION_UP -> {
+
+                    cerrarVideo()
+
                 }
-                MotionEvent.ACTION_UP -> {
-                    container.visibility = View.GONE
-                    imageButtonCerrar.visibility = View.GONE
-                    imageButtonAbrir.visibility = View.VISIBLE
-                }
+
             }
+
             true
+
         }
 
         imageButtonCancionAnterior.setOnClickListener {
 
             reproductorDeCanciones.detenerCancion(canciones)
 
-            if (cancionActual > 0) {
+            if (cancionActual.valor > 0) {
 
-                cancionActual--
+                cancionActual.valor--
 
-                reproductorDeCanciones.reproducirCancion(canciones[cancionActual], this)
+                reproductorDeCanciones.reproducirCancion(canciones[cancionActual.valor], canciones,this)
 
             } else {
 
-                cancionActual = canciones.size - 1
+                cancionActual.valor = canciones.size - 1
 
-                reproductorDeCanciones.reproducirCancion(canciones[cancionActual], this)
+                reproductorDeCanciones.reproducirCancion(canciones[cancionActual.valor], canciones, this)
 
             }
 
@@ -100,13 +99,17 @@ class ListaCanciones : AppCompatActivity() {
 
         imageButtonPausaReproducir.setOnClickListener {
 
-            if (canciones[cancionActual].reproduciendose){
+            if (canciones[cancionActual.valor].reproduciendose){
 
-                reproductorDeCanciones.pausarCancion(canciones[cancionActual])
+                reproductorDeCanciones.pausarCancion(canciones[cancionActual.valor])
+
+                imageButtonPausaReproducir.setImageResource(R.drawable.icono_reproducir)
 
             } else {
 
-                reproductorDeCanciones.reproducirCancion(canciones[cancionActual], this)
+                reproductorDeCanciones.reproducirCancion(canciones[cancionActual.valor], canciones, this)
+
+                imageButtonPausaReproducir.setImageResource(R.drawable.icono_pausa)
 
             }
 
@@ -118,17 +121,17 @@ class ListaCanciones : AppCompatActivity() {
 
             reproductorDeCanciones.detenerCancion(canciones)
 
-            if (cancionActual < canciones.size - 1) {
+            if (cancionActual.valor < canciones.size - 1) {
 
-                cancionActual++
+                cancionActual.valor++
 
-                reproductorDeCanciones.reproducirCancion(canciones[cancionActual], this)
+                reproductorDeCanciones.reproducirCancion(canciones[cancionActual.valor], canciones, this)
 
             } else {
 
-                cancionActual = 0
+                cancionActual.valor = 0
 
-                reproductorDeCanciones.reproducirCancion(canciones[cancionActual], this)
+                reproductorDeCanciones.reproducirCancion(canciones[cancionActual.valor], canciones, this)
             }
 
             adaptadorRecyclerViewCanciones.notifyDataSetChanged()
@@ -141,31 +144,60 @@ class ListaCanciones : AppCompatActivity() {
     private fun inicializarComponentes() {
 
         imageButtonAbrir = findViewById(R.id.imageButtonAbrir)
-        recyclerViewCanciones = findViewById(R.id.recyclerViewCanciones)
-
-        recyclerViewCanciones.layoutManager = LinearLayoutManager(this)
-
-        adaptadorRecyclerViewCanciones = AdaptadorRecyclerViewCanciones(canciones, this, reproductorDeCanciones)
-
-        recyclerViewCanciones.adapter = adaptadorRecyclerViewCanciones
 
         container = findViewById(R.id.container)
-
         container.visibility = View.GONE
 
+        seekBar = findViewById(R.id.seekBar)
+
         videoView = findViewById(R.id.videoView)
+        reproductorDeCanciones = ReproductorDeCanciones(videoView, seekBar)
 
         imageButtonCerrar = findViewById(R.id.imageButtonCerrar)
-
         imageButtonCerrar.visibility = View.GONE
 
-        SeekBar = findViewById(R.id.seekBar)
-
         imageButtonCancionAnterior = findViewById(R.id.imageButtonCancionAnterior)
-
         imageButtonPausaReproducir= findViewById(R.id.imageButtonPausaReproducir)
-
         imageButtonCancionSiguiente = findViewById(R.id.imageButtonCancionSiguiente)
+
+        recyclerViewCanciones = findViewById(R.id.recyclerViewCanciones)
+        recyclerViewCanciones.layoutManager = LinearLayoutManager(this)
+        adaptadorRecyclerViewCanciones = AdaptadorRecyclerViewCanciones(canciones, this, reproductorDeCanciones, cancionActual)
+        recyclerViewCanciones.adapter = adaptadorRecyclerViewCanciones
+
+    }
+
+    fun abrirVideo(){
+
+        container.visibility = View.VISIBLE
+        imageButtonCerrar.visibility = View.VISIBLE
+        imageButtonAbrir.visibility = View.GONE
+
+        if (canciones[cancionActual.valor].reproduciendose){
+
+            imageButtonPausaReproducir.setImageResource(R.drawable.icono_pausa)
+
+        } else {
+
+            imageButtonPausaReproducir.setImageResource(R.drawable.icono_reproducir)
+
+        }
+
+    }
+
+    fun cerrarVideo(){
+
+        container.visibility = View.GONE
+        imageButtonCerrar.visibility = View.GONE
+        imageButtonAbrir.visibility = View.VISIBLE
+
+    }
+
+    override fun onBackPressed() {
+
+        container.visibility = View.GONE
+        imageButtonCerrar.visibility = View.GONE
+        imageButtonAbrir.visibility = View.VISIBLE
 
     }
 
