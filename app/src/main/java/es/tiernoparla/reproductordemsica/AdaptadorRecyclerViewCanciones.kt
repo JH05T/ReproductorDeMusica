@@ -1,6 +1,5 @@
 package es.tiernoparla.reproductordemsica
 
-
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +9,7 @@ import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.recyclerview.widget.RecyclerView
 
-class AdaptadorRecyclerViewCanciones(private val canciones: List<Cancion>, private val context: Context) : RecyclerView.Adapter<AdaptadorRecyclerViewCanciones.ViewHolderCanciones>() {
+class AdaptadorRecyclerViewCanciones(private val canciones: List<Cancion>, private val context: Context, private val reproductorDeCanciones: ReproductorDeCanciones) : RecyclerView.Adapter<AdaptadorRecyclerViewCanciones.ViewHolderCanciones>() {
 
     override fun getItemCount(): Int = canciones.size
 
@@ -33,15 +32,39 @@ class AdaptadorRecyclerViewCanciones(private val canciones: List<Cancion>, priva
     override fun onBindViewHolder(holder: ViewHolderCanciones, position: Int) {
 
         cargarImagen(canciones[position].imagenAlbum, holder.imageViewAlbum)
+
         holder.textViewInfoCancion.text = obtenerInformacionCancion(canciones[position])
+
+        if (canciones[position].reproduciendose) {
+
+            holder.buttonReproducirCancion.setImageResource(R.drawable.icono_detener)
+
+        } else {
+
+            holder.buttonReproducirCancion.setImageResource(R.drawable.icono_reproducir)
+
+        }
 
         holder.buttonReproducirCancion.setOnClickListener {
 
-            //canciones[position].reproducir();
+            if (canciones[position].reproduciendose){
+
+                reproductorDeCanciones.detenerCancion(canciones)
+
+            } else {
+
+                reproductorDeCanciones.detenerCancion(canciones)
+
+                reproductorDeCanciones.reproducirCancion(canciones[position], context)
+
+            }
+
+            notifyDataSetChanged()
 
         }
 
     }
+
 
     private fun obtenerInformacionCancion(cancion: Cancion): String {
 
