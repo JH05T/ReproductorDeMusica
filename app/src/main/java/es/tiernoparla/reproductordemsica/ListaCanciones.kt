@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import android.widget.SeekBar
+import android.widget.VideoView
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,6 +19,7 @@ class ListaCanciones : AppCompatActivity() {
     private lateinit var adaptadorRecyclerViewCanciones: AdaptadorRecyclerViewCanciones
 
     private lateinit var container: ConstraintLayout
+    private lateinit var videoView: VideoView
     private lateinit var imageButtonCerrar: AppCompatImageButton
     private lateinit var SeekBar: SeekBar
     private lateinit var imageButtonCancionAnterior: AppCompatImageButton
@@ -32,7 +34,7 @@ class ListaCanciones : AppCompatActivity() {
         Cancion("Como un burro amarrado en la puerta del baile", arrayListOf("El Último De La Fila"), "@drawable/album_astronomia_razonable", R.raw.como_un_burro_amarrado_en_la_puerta_del_baile___el_ultimo_de_la_fila, false)
     )
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint("ClickableViewAccessibility", "NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -92,19 +94,23 @@ class ListaCanciones : AppCompatActivity() {
 
             }
 
+            adaptadorRecyclerViewCanciones.notifyDataSetChanged()
+
         }
 
         imageButtonPausaReproducir.setOnClickListener {
 
             if (canciones[cancionActual].reproduciendose){
 
-                reproductorDeCanciones.pausarCancion()
+                reproductorDeCanciones.pausarCancion(canciones[cancionActual])
 
             } else {
 
                 reproductorDeCanciones.reproducirCancion(canciones[cancionActual], this)
 
             }
+
+            adaptadorRecyclerViewCanciones.notifyDataSetChanged()
 
         }
 
@@ -125,6 +131,8 @@ class ListaCanciones : AppCompatActivity() {
                 reproductorDeCanciones.reproducirCancion(canciones[cancionActual], this)
             }
 
+            adaptadorRecyclerViewCanciones.notifyDataSetChanged()
+
         }
 
 
@@ -144,6 +152,8 @@ class ListaCanciones : AppCompatActivity() {
         container = findViewById(R.id.container)
 
         container.visibility = View.GONE
+
+        videoView = findViewById(R.id.videoView)
 
         imageButtonCerrar = findViewById(R.id.imageButtonCerrar)
 

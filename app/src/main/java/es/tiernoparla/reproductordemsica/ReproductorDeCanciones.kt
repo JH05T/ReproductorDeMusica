@@ -20,6 +20,10 @@ class ReproductorDeCanciones {
 
                 cancion.reproduciendose = false
 
+                mediaPlayer?.release()
+
+                mediaPlayer = null
+
             }
 
 
@@ -31,11 +35,13 @@ class ReproductorDeCanciones {
 
     }
 
-    fun pausarCancion() {
+    fun pausarCancion(cancion: Cancion) {
 
         if (mediaPlayer?.isPlaying == true) {
 
             mediaPlayer?.pause()
+
+            cancion.reproduciendose = false
 
         }
 
