@@ -17,7 +17,7 @@ class ReproductorDeCanciones(private val videoView: VideoView, private val seekB
 
         if (uriActual != uri) {
 
-            detenerCancion(canciones)
+            detenerCanciones(canciones)
 
             videoView.setVideoURI(uri)
 
@@ -55,7 +55,7 @@ class ReproductorDeCanciones(private val videoView: VideoView, private val seekB
 
     }
 
-    fun detenerCancion(canciones: List<Cancion>) {
+    fun detenerCanciones(canciones: List<Cancion>) {
 
         for (cancion in canciones) {
 

@@ -51,7 +51,7 @@ class AdaptadorRecyclerViewCanciones(private val canciones: List<Cancion>, priva
 
             if (canciones[position].reproduciendose){
 
-                reproductorDeCanciones.detenerCancion(canciones)
+                reproductorDeCanciones.detenerCanciones(canciones)
 
             } else {
 

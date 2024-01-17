@@ -3,6 +3,8 @@ package es.tiernoparla.reproductordemsica
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.MotionEvent
 import android.view.View
 import android.widget.SeekBar
@@ -77,7 +79,7 @@ class ListaCanciones : AppCompatActivity() {
 
         imageButtonCancionAnterior.setOnClickListener {
 
-            reproductorDeCanciones.detenerCancion(canciones)
+            reproductorDeCanciones.detenerCanciones(canciones)
 
             if (cancionActual.valor > 0) {
 
@@ -119,7 +121,7 @@ class ListaCanciones : AppCompatActivity() {
 
         imageButtonCancionSiguiente.setOnClickListener {
 
-            reproductorDeCanciones.detenerCancion(canciones)
+            reproductorDeCanciones.detenerCanciones(canciones)
 
             if (cancionActual.valor < canciones.size - 1) {
 
@@ -137,7 +139,6 @@ class ListaCanciones : AppCompatActivity() {
             adaptadorRecyclerViewCanciones.notifyDataSetChanged()
 
         }
-
 
     }
 
@@ -164,6 +165,16 @@ class ListaCanciones : AppCompatActivity() {
         recyclerViewCanciones.layoutManager = LinearLayoutManager(this)
         adaptadorRecyclerViewCanciones = AdaptadorRecyclerViewCanciones(canciones, this, reproductorDeCanciones, cancionActual)
         recyclerViewCanciones.adapter = adaptadorRecyclerViewCanciones
+
+        abrirVideo()
+
+        reproductorDeCanciones.reproducirCancion(canciones[cancionActual.valor], canciones, this)
+
+        reproductorDeCanciones.detenerCanciones(canciones)
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            cerrarVideo()
+        }, 500)
 
     }
 
